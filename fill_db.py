@@ -71,6 +71,7 @@ def parse_data(data):
 
     diplome_counter = 0
     for item in data:
+        # Add a second dimention to the list
         # Diplome
         if "diplome" in item["fields"]:
             diplome.append(item['fields']['diplome'])
