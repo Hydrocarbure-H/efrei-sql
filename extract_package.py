@@ -1,5 +1,4 @@
 import json
-import csv
 import pprint
 
 
@@ -10,7 +9,6 @@ def extract_data():
     try:
         with open('files/test.json', 'r') as json_file:
             data = json.load(json_file)
-            pprint.pprint(data)
     except FileNotFoundError:
         print("File not found")
 
