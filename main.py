@@ -10,6 +10,6 @@ db = connect_to_db()
 
 construct_db(db)
 
-fill_db(db)
+fill_db(db, data)
 
 db.close()

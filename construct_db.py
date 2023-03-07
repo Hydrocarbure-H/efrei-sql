@@ -31,7 +31,7 @@ def create_students_table(db):
                       "libelle_nationalite VARCHAR(255) NOT NULL,"
                       "handicap_oui_non_vide VARCHAR(255) NOT NULL,"
                       "age_jeune_decembre INT NOT NULL,"
-                      "age_formation INT NOT NULL"
+                      "annee_formation INT NOT NULL"
                       ")")
     db_cursor.close()
 
@@ -60,12 +60,12 @@ def create_degree_table(db):
     db_cursor.execute("CREATE DATABASE IF NOT EXISTS efrei_sql")
     db_cursor.execute("USE efrei_sql")
     db_cursor.execute("CREATE TABLE IF NOT EXISTS diplome ("
-                      "diplome INT PRIMARY KEY,"
+                      "diplome INT PRIMARY KEY DEFAULT 0,"
                       "libelle_diplome VARCHAR(255) NOT NULL,"
                       "type_diplome VARCHAR(255) NOT NULL,"
                       "libelle_specialite VARCHAR(255) NOT NULL,"
                       "libelle_specialite_com VARCHAR(255) NOT NULL,"
-                      "code_groupe_specialite INT NOT NULL"
+                      "code_groupe_specialite VARCHAR(255) NOT NULL"
                       ")")
     db_cursor.close()
 
