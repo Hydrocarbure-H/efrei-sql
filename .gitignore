@@ -3,6 +3,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+data.json
+.idea/
 # C extensions
 *.so
 
@@ -127,3 +129,10 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+.idea/vcs.xml
+.idea/modules.xml
+.idea/efrei-sql.iml
+.idea/inspectionProfiles/profiles_settings.xml
+.idea/misc.xml
+.idea/modules.xml
+.idea/vcs.xml
