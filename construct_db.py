@@ -44,7 +44,7 @@ def create_siteformation_table(db):
     db_cursor.execute("CREATE DATABASE IF NOT EXISTS efrei_sql")
     db_cursor.execute("USE efrei_sql")
     db_cursor.execute("CREATE TABLE IF NOT EXISTS site_formation ("
-                      "id_siteformation INT PRIMARY KEY,"
+                      "id_siteformation INT PRIMARY KEY DEFAULT 0,"
                       "nom_site_formation VARCHAR(255) NOT NULL,"
                       "addresse_site VARCHAR(255) NOT NULL,"
                       "libelle_ville_site VARCHAR(255) NOT NULL"
