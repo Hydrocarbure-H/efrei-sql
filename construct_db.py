@@ -78,7 +78,7 @@ def create_company_table(db):
     db_cursor.execute("CREATE DATABASE IF NOT EXISTS efrei_sql")
     db_cursor.execute("USE efrei_sql")
     db_cursor.execute("CREATE TABLE IF NOT EXISTS entreprise ("
-                      "id_entreprise INT PRIMARY KEY AUTO_INCREMENT,"
+                      "id_entreprise INT PRIMARY KEY,"
                       "code_insee_entreprise INT NOT NULL,"
                       "depart_entreprise INT NOT NULL,"
                       "code_naf_entreprise VARCHAR(255) NOT NULL"

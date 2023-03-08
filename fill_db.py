@@ -9,7 +9,6 @@ def fill_degree_table(db, data):
     for item in data:
         db_cursor.execute("SELECT * FROM diplome WHERE diplome = " + str(item[0]))
         if db_cursor.rowcount == 0:
-            print("Inserting " + str(item[0]))
             sql = "INSERT INTO diplome (diplome, libelle_diplome, type_diplome, libelle_specialite, libelle_specialite_com, code_groupe_specialite) VALUES (%s, %s, %s, %s, %s, %s)"
             val = (item[0], item[1], item[2], item[3], item[4], item[5])
 
@@ -22,13 +21,15 @@ def fill_degree_table(db, data):
 def fill_entreprise_table(db, data):
     """Fill the entreprise table with the data passed in parameters"""
 
-    db_cursor = db.cursor()
+    db_cursor = db.cursor(buffered=True)
     db_cursor.execute("USE efrei_sql")
     for item in data:
-        db_cursor.execute(
-            "INSERT INTO entreprise (code_insee_entreprise, depart_entreprise, code_naf_entreprise) VALUES (%s, %s, %s)",
-            (item[0], item[1], item[2]))
-        db.commit()
+        db_cursor.execute("SELECT * FROM entreprise WHERE id_entreprise = " + str(item[0]))
+        if db_cursor.rowcount == 0:
+            db_cursor.execute(
+                "INSERT INTO entreprise (id_entreprise, code_insee_entreprise, depart_entreprise, code_naf_entreprise) VALUES (%s, %s, %s, %s)",
+                (item[0], item[1], item[2], item[3]))
+            db.commit()
     db_cursor.close()
     print("Table Entreprise filled successfully")
 
@@ -36,12 +37,11 @@ def fill_entreprise_table(db, data):
 def fill_site_formation_table(db, data):
     """Fill the site_formation table with the data passed in parameters"""
 
-    db_cursor = db.cursor()
+    db_cursor = db.cursor(buffered=True)
     db_cursor.execute("USE efrei_sql")
     for item in data:
         db_cursor.execute("SELECT * FROM site_formation WHERE id_siteformation = " + str(item[0]))
         if db_cursor.rowcount == 0:
-            print("Inserting " + str(item))
             sql = "INSERT INTO site_formation (id_siteformation, nom_site_formation, addresse_site, libelle_ville_site) VALUES (%s, %s, %s, %s)"
             val = (item[0], item[1], item[2], item[3])
             db_cursor.execute(sql, val)
@@ -53,13 +53,21 @@ def fill_site_formation_table(db, data):
 def fill_students_table(db, data):
     """Fill the student table with the data passed in parameters"""
 
-    db_cursor = db.cursor()
+    db_cursor = db.cursor(buffered=True)
     db_cursor.execute("USE efrei_sql")
     for item in data:
-        db_cursor.execute(
-            "INSERT INTO etudiant (id_etudiant, id_siteformation, code_insee_entreprise, code_groupe_specialite, code_postal_jeune, libelle_statut_jeune, libelle_qualite, libelle_nationalite, handicap_oui_non_vide, age_jeune_decembre, age_formation) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-            (item[0], item[1], item[2], item[3], item[4], item[5], item[6], item[7], item[8], item[9], item[10],
-             item[11]))
+        sql = "INSERT INTO etudiant " \
+              "(diplome, id_siteformation, id_entreprise, code_depart_jeune_insee," \
+              " code_nationalite, code_pcs, code_sexe, code_niveau, code_statut_jeune, code_commune_jeune_insee," \
+              " code_postal_jeune, libelle_statut_jeune, libelle_qualite, libelle_nationalite, handicap_oui_non_vide, " \
+              "age_jeune_decembre, annee_formation) " \
+              "VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+        val = (
+            item[0], item[1], item[2], item[3], item[4], item[5], item[6], item[7], item[8], item[9], item[10],
+            item[11], item[12], item[13], item[14], item[15], item[16])
+
+        db_cursor.execute(sql, val)
+        db.commit()
     db_cursor.close()
     print("Table Etudiant filled successfully")
 
@@ -70,7 +78,7 @@ def fill_db(db, data):
     fill_degree_table(db, data_by_table["diplome"])
     fill_entreprise_table(db, data_by_table["entreprise"])
     fill_site_formation_table(db, data_by_table["site_formation"])
-    # fill_students_table(db, data_by_table["etudiant"])
+    fill_students_table(db, data_by_table["etudiant"])
 
 
 def parse_data(data):
@@ -84,13 +92,14 @@ def parse_data(data):
 
     diplome_counter = 0
     for item in data:
+        change_diplome_counter = False
         reccord_diplome = []
         # Diplome
         if "diplome" in item["fields"]:
             reccord_diplome.append(item['fields']['diplome'])
         else:
             reccord_diplome.append(diplome_counter)
-            diplome_counter += 1
+            change_diplome_counter = True
         if "libelle_diplome" in item["fields"]:
             reccord_diplome.append(item['fields']['libelle_diplome'])
         else:
@@ -115,6 +124,10 @@ def parse_data(data):
         diplome.append(reccord_diplome)
         # Entreprise
         reccord_entreprise = []
+        if "id_entreprise" in item["fields"]:
+            reccord_entreprise.append(item['fields']['id_entreprise'])
+        else:
+            reccord_entreprise.append(0)
         if "code_insee_entreprise" in item["fields"]:
             reccord_entreprise.append(item['fields']['code_insee_entreprise'])
         else:
@@ -139,6 +152,10 @@ def parse_data(data):
             reccord_etudiant.append(diplome_counter)
         if "id_siteformation" in item["fields"]:
             reccord_etudiant.append(item['fields']['id_siteformation'])
+        else:
+            reccord_etudiant.append(0)
+        if "id_entreprise" in item["fields"]:
+            reccord_etudiant.append(item['fields']['id_entreprise'])
         else:
             reccord_etudiant.append(0)
         if "code_depart_jeune_insee" in item["fields"]:
@@ -222,6 +239,10 @@ def parse_data(data):
             reccord_site_formation.append("")
 
         site_formation.append(reccord_site_formation)
+
+        if change_diplome_counter:
+            diplome_counter += 1
+            change_diplome_counter = False
 
     data_by_table['diplome'] = diplome
     data_by_table['entreprise'] = entreprise
