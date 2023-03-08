@@ -2,11 +2,17 @@ from pprint import pprint
 
 
 def fill_degree_table(db, data):
-    """Fill the degree table with the data passed in parameters"""
+    """
+    Fill the degree table with the data passed in parameters
+    :param db:
+    :param data:
+    :return:
+    """
 
     db_cursor = db.cursor(buffered=True)
     db_cursor.execute("USE efrei_sql")
     for item in data:
+        # Check if the degree already exists
         db_cursor.execute("SELECT * FROM diplome WHERE diplome = " + str(item[0]))
         if db_cursor.rowcount == 0:
             sql = "INSERT INTO diplome (diplome, libelle_diplome, type_diplome, libelle_specialite, libelle_specialite_com, code_groupe_specialite) VALUES (%s, %s, %s, %s, %s, %s)"
@@ -19,11 +25,17 @@ def fill_degree_table(db, data):
 
 
 def fill_entreprise_table(db, data):
-    """Fill the entreprise table with the data passed in parameters"""
+    """
+    Fill the entreprise table with the data passed in parameters
+    :param db:
+    :param data:
+    :return:
+    """
 
     db_cursor = db.cursor(buffered=True)
     db_cursor.execute("USE efrei_sql")
     for item in data:
+        # Check if the entreprise already exists
         db_cursor.execute("SELECT * FROM entreprise WHERE id_entreprise = " + str(item[0]))
         if db_cursor.rowcount == 0:
             db_cursor.execute(
@@ -35,11 +47,17 @@ def fill_entreprise_table(db, data):
 
 
 def fill_site_formation_table(db, data):
-    """Fill the site_formation table with the data passed in parameters"""
+    """
+    Fill the site formation table with the data passed in parameters
+    :param db:
+    :param data:
+    :return:
+    """
 
     db_cursor = db.cursor(buffered=True)
     db_cursor.execute("USE efrei_sql")
     for item in data:
+        # Check if the site formation already exists
         db_cursor.execute("SELECT * FROM site_formation WHERE id_siteformation = " + str(item[0]))
         if db_cursor.rowcount == 0:
             sql = "INSERT INTO site_formation (id_siteformation, nom_site_formation, addresse_site, libelle_ville_site) VALUES (%s, %s, %s, %s)"
@@ -51,7 +69,12 @@ def fill_site_formation_table(db, data):
 
 
 def fill_students_table(db, data):
-    """Fill the student table with the data passed in parameters"""
+    """
+    Fill the student table with the data passed in parameters
+    :param db:
+    :param data:
+    :return:
+    """
 
     db_cursor = db.cursor(buffered=True)
     db_cursor.execute("USE efrei_sql")
@@ -73,8 +96,16 @@ def fill_students_table(db, data):
 
 
 def fill_db(db, data):
+    """
+    Fill all the database with the data passed in parameters
+    :param db:
+    :param data:
+    :return:
+    """
+    # Parse the data from the json file
     data_by_table = parse_data(data)
-    # pprint(data_by_table)
+
+    # Fill the tables
     fill_degree_table(db, data_by_table["diplome"])
     fill_entreprise_table(db, data_by_table["entreprise"])
     fill_site_formation_table(db, data_by_table["site_formation"])
@@ -82,14 +113,22 @@ def fill_db(db, data):
 
 
 def parse_data(data):
-    """Parse the data to fill the tables"""
+    """
+    Parse the data to get the data by table
+    :param data:
+    :return: a dict with the data by table
+    """
 
     data_by_table = dict()
+
+    # Prepare lists
     diplome = []
     entreprise = []
     etudiant = []
     site_formation = []
 
+    # Set a counter for the diplome, due to some missing infos in the json file, according to the french developpement logic.
+    # This counter is used as a primary key for the diplome table
     diplome_counter = 0
     for item in data:
         change_diplome_counter = False
@@ -120,9 +159,10 @@ def parse_data(data):
             reccord_diplome.append(item['fields']['code_groupe_specialite'])
         else:
             reccord_diplome.append(0)
-
         diplome.append(reccord_diplome)
+
         # Entreprise
+
         reccord_entreprise = []
         if "id_entreprise" in item["fields"]:
             reccord_entreprise.append(item['fields']['id_entreprise'])
@@ -215,7 +255,6 @@ def parse_data(data):
             reccord_etudiant.append(item['fields']['annee_formation'])
         else:
             reccord_etudiant.append(0)
-
         etudiant.append(reccord_etudiant)
 
         # Site de formation
@@ -240,10 +279,12 @@ def parse_data(data):
 
         site_formation.append(reccord_site_formation)
 
+        # Do our stuff about the primary key of the diplome table
         if change_diplome_counter:
             diplome_counter += 1
             change_diplome_counter = False
 
+    # Create a dictionary to return
     data_by_table['diplome'] = diplome
     data_by_table['entreprise'] = entreprise
     data_by_table['etudiant'] = etudiant

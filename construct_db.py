@@ -1,4 +1,9 @@
 def construct_db(db):
+    """
+    Create the database and the tables
+    :param db:
+    :return:
+    """
     create_company_table(db)
     create_degree_table(db)
     create_siteformation_table(db)
